@@ -1,0 +1,10 @@
+## lint
+djlint==1.36.4
+ruff==0.15.8
+## druids design framework (during local dev: pip install -e ../../)
+druidforms @ git+https://github.com/creepytree/druidforms
+## fastapi
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
+jinja2==3.1.6
+python-multipart==0.0.22

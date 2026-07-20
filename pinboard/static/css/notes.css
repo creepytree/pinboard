@@ -1,0 +1,129 @@
+/* pinboard - key/value notes table */
+
+.notes-section {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.notes-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.notes-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.notes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.notes-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    word-break: break-word;
+}
+
+.notes-table td.note-key {
+    /* size to the key text (capped), leaving the rest to the value column */
+    width: 1%;
+    min-width: 160px;
+    max-width: 260px;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.notes-table td.note-key,
+.notes-table td.note-value {
+    cursor: copy;
+}
+
+.notes-table td.copied {
+    animation: copy-flash 0.6s ease-out;
+}
+
+@keyframes copy-flash {
+    0% {
+        background: var(--accent-soft);
+    }
+    100% {
+        background: transparent;
+    }
+}
+
+.copy-toast {
+    position: fixed;
+    z-index: 70;
+    pointer-events: none;
+    background: var(--accent);
+    /* dark text, pastel accents give no contrast for white */
+    color: var(--bg);
+    font-size: 0.75rem;
+    padding: 3px 9px;
+    border-radius: 6px;
+    animation: copy-rise 0.7s ease-out forwards;
+}
+
+@keyframes copy-rise {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+}
+
+.notes-table td.note-value {
+    white-space: pre-wrap;
+}
+
+.notes-table td.note-actions {
+    width: 70px;
+    text-align: right;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.note-actions .entry-action {
+    display: none;
+    width: 24px;
+    height: 24px;
+}
+
+.note-actions .entry-action + .entry-action {
+    margin-left: 6px;
+}
+
+body.edit-mode .note-actions .entry-action {
+    display: inline-flex;
+}
+
+.notes-table input {
+    width: 100%;
+    height: 36px;
+}
+
+/* value editor: match the 36px key-input box on a single line */
+.notes-table druid-textarea textarea {
+    min-height: 36px;
+    height: 36px;
+}
+
+body.edit-mode .notes-table tr {
+    cursor: grab;
+}
+
+.notes-table tr.dragging {
+    opacity: 0.4;
+}
