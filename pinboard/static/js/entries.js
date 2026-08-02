@@ -1,15 +1,27 @@
-/* pinboard - entry grid: tiles, drag reorder, description popover, add/edit dialog */
+/* pinboard - entry grid: round tiles, drag reorder, description popover, add/edit dialog */
 
 let entries = [];
 
 const grid = document.getElementById("entry-grid");
-const popover = document.getElementById("description-popover");
 
 async function loadEntries() {
     entries = await api("/entries");
     renderEntries();
 }
 
+// Small round action badge on a tile / note row.
+function iconButton(icon, label, { variant = "", small = false } = {}) {
+    const button = document.createElement("druid-icon-button");
+    button.setAttribute("icon", icon);
+    button.setAttribute("label", label);
+    button.setAttribute("circle", "");
+    if (small) button.setAttribute("small", "");
+    if (variant) button.setAttribute("variant", variant);
+    return button;
+}
+
+/* The round tile is pinboard's own UI - the framework has no equivalent, so it
+   stays hand-rolled, but every surface, accent and radius comes from tokens. */
 function entryTile(entry) {
     const tile = document.createElement("div");
     tile.className = "entry";
@@ -44,37 +56,32 @@ function entryTile(entry) {
     name.textContent = entry.name;
     tile.appendChild(name);
 
-    // Description stays hidden unless explicitly opened via the info dot.
+    // Description stays hidden unless explicitly opened via the eye; the
+    // framework popover brings light-dismiss and same-trigger toggle with it.
     if (entry.description) {
-        const info = document.createElement("button");
-        info.className = "entry-info";
-        info.innerHTML = ICONS.eye;
-        info.title = "Show description";
-        info.addEventListener("click", (event) => {
-            event.stopPropagation();
-            // Second click on the same eye closes the popover again.
-            if (!popover.hidden && popoverAnchor === info) {
-                hidePopover();
-                return;
-            }
-            showPopover(info, entry.description);
-        });
-        tile.appendChild(info);
+        const popover = document.createElement("druid-popover");
+        popover.className = "entry-info";
+        popover.setAttribute("placement", "bottom-start");
+
+        const info = iconButton("eye", "Show description");
+        info.slot = "trigger";
+        popover.appendChild(info);
+
+        const text = document.createElement("div");
+        text.className = "entry-description";
+        text.textContent = entry.description;
+        popover.appendChild(text);
+
+        tile.appendChild(popover);
     }
 
     const actions = document.createElement("div");
     actions.className = "entry-actions";
-    const edit = document.createElement("button");
-    edit.className = "entry-action";
-    edit.innerHTML = ICONS.pencil;
-    edit.title = "Edit";
+    const edit = iconButton("pencil", "Edit", { small: true });
     edit.addEventListener("click", () => openEntryDialog(entry));
-    const remove = document.createElement("button");
-    remove.className = "entry-action delete";
-    remove.innerHTML = ICONS.x;
-    remove.title = "Delete";
+    const remove = iconButton("x", "Delete", { variant: "soft-danger", small: true });
     remove.addEventListener("click", async () => {
-        if (!await confirmDialog({ message: `Delete entry "${entry.name}"?`, confirmLabel: "delete" })) return;
+        if (!(await druids.confirm(`Delete entry "${entry.name}"?`, { confirmLabel: "delete", danger: true }))) return;
         await api(`/entries/${entry.id}`, { method: "DELETE" });
         loadEntries();
     });
@@ -110,8 +117,11 @@ function renderEntries() {
     grid.innerHTML = "";
     if (!entries.length && !editMode) {
         const empty = document.createElement("div");
-        empty.className = "grid-empty";
-        empty.textContent = "No entries yet - use the pencil to start editing.";
+        empty.className = "df-empty";
+        const title = document.createElement("div");
+        title.className = "df-empty-title";
+        title.textContent = "No entries yet";
+        empty.append(title, document.createTextNode("Use the pencil to start editing."));
         grid.appendChild(empty);
     }
     entries.forEach((entry) => grid.appendChild(entryTile(entry)));
@@ -120,8 +130,11 @@ function renderEntries() {
     add.className = "entry entry-add";
     const button = document.createElement("button");
     button.className = "entry-btn";
-    button.innerHTML = ICONS.plus;
     button.title = "Add entry";
+    const plus = document.createElement("druid-icon");
+    plus.setAttribute("name", "plus");
+    plus.setAttribute("size", "38px");
+    button.appendChild(plus);
     button.addEventListener("click", () => openEntryDialog(null));
     add.appendChild(button);
     const label = document.createElement("div");
@@ -136,32 +149,6 @@ function saveEntryOrder() {
     api("/entries/reorder", { method: "POST", body: JSON.stringify({ ids }) }).then(loadEntries);
 }
 
-/* ---------- description popover ---------- */
-
-let popoverAnchor = null;
-
-function showPopover(anchor, text) {
-    popoverAnchor = anchor;
-    popover.textContent = text;
-    popover.hidden = false;
-    // Restart the pop-in animation when jumping between anchors.
-    popover.style.animation = "none";
-    void popover.offsetWidth;
-    popover.style.animation = "";
-    const rect = anchor.getBoundingClientRect();
-    popover.style.left = `${Math.min(rect.left, window.innerWidth - popover.offsetWidth - 12)}px`;
-    popover.style.top = `${rect.bottom + 8}px`;
-}
-
-function hidePopover() {
-    popover.hidden = true;
-    popoverAnchor = null;
-}
-
-document.addEventListener("click", (event) => {
-    if (!popover.hidden && !event.target.closest(".entry-info")) hidePopover();
-});
-
 /* ---------- entry dialog ---------- */
 
 const dialog = document.getElementById("entry-dialog");
@@ -174,7 +161,13 @@ let dialogEntryId = null;
 
 function setDialogImage(image) {
     dialogImage = image;
-    preview.innerHTML = image ? `<img src="${image}" alt="preview">` : "";
+    preview.innerHTML = "";
+    if (image) {
+        const img = document.createElement("img");
+        img.src = image;
+        img.alt = "preview";
+        preview.appendChild(img);
+    }
     clearImageBtn.hidden = !image;
 }
 

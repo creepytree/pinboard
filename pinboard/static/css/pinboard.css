@@ -9,12 +9,10 @@ body.edit-mode .edit-only {
     display: inline-flex;
 }
 
-/* confirmation dialog (box/backdrop/h3 come from the framework's .df-dialog) */
-#confirm-dialog {
-    max-width: 24rem;
-}
-
-.confirm-message {
-    margin: 0.75rem 0 1.25rem;
-    color: var(--text-muted);
+/* Framework components set :host{display:inline-flex}, which outranks the UA
+   stylesheet's [hidden]{display:none} - so `el.hidden = true` does not hide
+   them without this. See GAPS.md. */
+druid-button[hidden],
+druid-icon-button[hidden] {
+    display: none;
 }

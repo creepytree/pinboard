@@ -86,46 +86,20 @@
     max-width: 118px;
 }
 
+/* The eye opening the description popover. druid-icon-button paints no resting
+   background (no token for it - see GAPS.md), so the wrapper carries the disc
+   the eye needs to sit on where it overlaps the tile. */
 .entry-info {
     position: absolute;
     top: -6px;
     right: -2px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
     background: var(--bg-raised);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.15s, border-color 0.15s;
+    border-radius: 50%;
 }
 
-.entry-info svg {
-    width: 20px;
-    height: 20px;
-}
-
-.entry-info:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
-.description-popover:not([hidden]) {
-    animation: pop-in 0.16s ease-out;
-}
-
-.description-popover {
-    position: fixed;
-    z-index: 50;
+/* panel chrome (surface, border, radius, shadow) comes from druid-popover */
+.entry-description {
     max-width: 300px;
-    padding: 10px 14px;
-    background: var(--bg-hover);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
     font-size: 0.85rem;
     white-space: pre-wrap;
     word-break: break-word;
@@ -153,42 +127,9 @@ body.edit-mode .entry {
     opacity: 0.4;
 }
 
-.entry-action {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--bg-hover);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.entry-action svg {
-    width: 14px;
-    height: 14px;
-}
-
-.entry-action:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
-.entry-action.delete:hover {
-    color: var(--danger);
-    border-color: var(--danger);
-}
-
 .entry-add .entry-btn {
     border-style: dashed;
     color: var(--text-muted);
-}
-
-.entry-add .entry-btn svg {
-    width: 38px;
-    height: 38px;
 }
 
 .entry-add {
@@ -199,27 +140,12 @@ body.edit-mode .entry-add {
     display: flex;
 }
 
-.grid-empty {
-    width: 100%;
-    text-align: center;
-    color: var(--text-muted);
-    padding: 30px 0;
-}
-
-/* ---------- dialog (box/backdrop/h3 come from the framework's .df-dialog) ---------- */
+/* ---------- dialog (box/backdrop/h3/fields come from the framework) ---------- */
 
 #entry-dialog form {
     display: flex;
     flex-direction: column;
     gap: 12px;
-}
-
-#entry-dialog label {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
 }
 
 .image-row {
@@ -249,11 +175,4 @@ body.edit-mode .entry-add {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--border);
-}
-
-.dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 6px;
 }

@@ -23,24 +23,19 @@ function writeClipboard(text) {
     return Promise.resolve();
 }
 
-async function copyNoteText(event, cell, text) {
+async function copyNoteText(cell, text) {
     if (!text) return;
     try {
         await writeClipboard(text);
     } catch {
+        druids.toast("Could not copy", "danger");
         return;
     }
-    // Flash the cell and float a small "copied" toast at the cursor.
+    // Flash the cell, then let the framework toast confirm it.
     cell.classList.remove("copied");
     void cell.offsetWidth;
     cell.classList.add("copied");
-    const toast = document.createElement("div");
-    toast.className = "copy-toast";
-    toast.textContent = "copied";
-    toast.style.left = `${event.clientX + 12}px`;
-    toast.style.top = `${event.clientY - 10}px`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 700);
+    druids.toast("copied", "ok", 1200);
 }
 
 function noteRow(note) {
@@ -51,26 +46,20 @@ function noteRow(note) {
     key.className = "note-key";
     key.textContent = note.key;
     key.title = "Click to copy";
-    key.addEventListener("click", (event) => copyNoteText(event, key, note.key));
+    key.addEventListener("click", () => copyNoteText(key, note.key));
     const value = document.createElement("td");
     value.className = "note-value";
     value.textContent = note.value;
     value.title = "Click to copy";
-    value.addEventListener("click", (event) => copyNoteText(event, value, note.value));
+    value.addEventListener("click", () => copyNoteText(value, note.value));
     const actions = document.createElement("td");
     actions.className = "note-actions";
 
-    const edit = document.createElement("button");
-    edit.className = "entry-action";
-    edit.innerHTML = ICONS.pencil;
-    edit.title = "Edit";
+    const edit = iconButton("pencil", "Edit", { small: true });
     edit.addEventListener("click", () => editNoteRow(row, note));
-    const remove = document.createElement("button");
-    remove.className = "entry-action delete";
-    remove.innerHTML = ICONS.x;
-    remove.title = "Delete";
+    const remove = iconButton("x", "Delete", { variant: "soft-danger", small: true });
     remove.addEventListener("click", async () => {
-        if (!await confirmDialog({ message: `Delete note "${note.key}"?`, confirmLabel: "delete" })) return;
+        if (!(await druids.confirm(`Delete note "${note.key}"?`, { confirmLabel: "delete", danger: true }))) return;
         await api(`/notes/${note.id}`, { method: "DELETE" });
         loadNotes();
     });
@@ -125,10 +114,7 @@ function editNoteRow(row, note) {
 
     const actions = document.createElement("td");
     actions.className = "note-actions";
-    const save = document.createElement("button");
-    save.className = "entry-action";
-    save.innerHTML = ICONS.check;
-    save.title = "Save";
+    const save = iconButton("check", "Save", { small: true });
     save.addEventListener("click", async () => {
         const payload = { key: keyInput.value.trim(), value: valueInput.value.trim() };
         if (!payload.key) return;
@@ -139,10 +125,7 @@ function editNoteRow(row, note) {
         }
         loadNotes();
     });
-    const cancel = document.createElement("button");
-    cancel.className = "entry-action delete";
-    cancel.innerHTML = ICONS.x;
-    cancel.title = "Cancel";
+    const cancel = iconButton("x", "Cancel", { variant: "soft-danger", small: true });
     cancel.addEventListener("click", () => renderNotes());
     actions.append(save, cancel);
 
@@ -153,7 +136,7 @@ function editNoteRow(row, note) {
 function renderNotes() {
     notesBody.innerHTML = "";
     notes.forEach((note) => notesBody.appendChild(noteRow(note)));
-    document.getElementById("notes-section").style.display = notes.length || editMode ? "" : "none";
+    document.getElementById("notes-section").hidden = !notes.length && !editMode;
 }
 
 document.getElementById("note-add").addEventListener("click", () => {

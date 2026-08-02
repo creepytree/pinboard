@@ -21,11 +21,10 @@ document.getElementById("import-file").addEventListener("change", async (event) 
         const config = JSON.parse(await file.text());
         const entryCount = config.entries?.length ?? 0;
         const noteCount = config.notes?.length ?? 0;
-        const proceed = await confirmDialog({
-            title: "Import config",
-            message: `Import replaces the current dashboard with ${entryCount} entries and ${noteCount} notes. Continue?`,
-            confirmLabel: "import",
-        });
+        const proceed = await druids.confirm(
+            `Import replaces the current dashboard with ${entryCount} entries and ${noteCount} notes. Continue?`,
+            { title: "Import config", confirmLabel: "import", danger: true }
+        );
         if (!proceed) return;
         await api("/import", {
             method: "POST",
