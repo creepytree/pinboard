@@ -1,0 +1,114 @@
+{% extends "druids/base.jinja2" %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ base_path }}/static/css/pinboard.css">
+    <link rel="stylesheet" href="{{ base_path }}/static/css/entries.css">
+    <link rel="stylesheet" href="{{ base_path }}/static/css/notes.css">
+{% endblock %}
+{% block tabs %}
+    <druid-tabs active="dashboard">
+        <druid-tab panel="dashboard">Dashboard</druid-tab>
+        <druid-tab panel="log">Log</druid-tab>
+    </druid-tabs>
+{% endblock %}
+{% block actions %}
+    <druid-icon-button slot="actions"
+                       id="export-btn"
+                       class="edit-only"
+                       icon="export"
+                       label="Export config (json)"></druid-icon-button>
+    <druid-icon-button slot="actions"
+                       id="import-btn"
+                       class="edit-only"
+                       icon="import"
+                       label="Import config (json)"></druid-icon-button>
+    <input type="file" id="import-file" accept="application/json,.json" hidden>
+    <druid-icon-button slot="actions"
+                       id="edit-toggle"
+                       icon="pencil"
+                       toggle
+                       label="Toggle edit mode"></druid-icon-button>
+{% endblock %}
+{% block content %}
+    <section data-tab-panel="dashboard" class="df-tab-panel scroll active">
+        <div id="entry-grid" class="entry-grid">
+        </div>
+        <div id="notes-section" class="notes-section">
+            <div class="notes-header">
+                <h4>
+                    Notes
+                </h4>
+                <druid-button id="note-add" class="edit-only">
+                    + add
+                </druid-button>
+            </div>
+            <table id="notes-table" class="notes-table">
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section data-tab-panel="log" class="df-tab-panel">
+        <druid-log-view src="{{ base_path }}/api/log" poll="5" boxed heading="Application Log"></druid-log-view>
+    </section>
+    <dialog id="entry-dialog" class="df-dialog">
+        <form id="entry-form" method="dialog">
+            <h3 id="entry-dialog-title">
+                Add entry
+            </h3>
+            <label class="df-field">
+                <span class="df-label">Name</span>
+                <input type="text" name="name" required maxlength="100" autocomplete="off">
+            </label>
+            <label class="df-field">
+                <span class="df-label">URL</span>
+                <input type="text"
+                       name="url"
+                       required
+                       maxlength="2000"
+                       placeholder="https://..."
+                       autocomplete="off">
+            </label>
+            <label class="df-field">
+                <span class="df-label">Description <span class="df-muted">(optional)</span></span>
+                <druid-textarea name="description" rows="3" maxlength="2000"></druid-textarea>
+            </label>
+            <div class="image-row">
+                <label class="df-field grow">
+                    <span class="df-label">Image URL <span class="df-muted">(optional)</span></span>
+                    <input type="text" id="entry-image-url" placeholder="https://.../icon.png" autocomplete="off">
+                </label>
+                <druid-button id="entry-image-fetch">
+                    fetch
+                </druid-button>
+                <druid-button id="entry-image-pick">
+                    file
+                </druid-button>
+                <input type="file" id="entry-image-file" accept="image/*" hidden>
+            </div>
+            <div class="image-preview-row">
+                <div id="entry-image-preview" class="image-preview">
+                </div>
+                <druid-button id="entry-image-clear" variant="soft-danger" hidden>
+                    remove image
+                </druid-button>
+            </div>
+            <p id="entry-error" class="df-form-error" hidden>
+            </p>
+            <div class="df-dialog-actions">
+                <druid-button id="entry-cancel">
+                    cancel
+                </druid-button>
+                <druid-button type="submit" variant="primary">
+                    save
+                </druid-button>
+            </div>
+        </form>
+    </dialog>
+{% endblock %}
+{% block scripts %}
+    <script src="{{ base_path }}/static/js/util.js"></script>
+    <script src="{{ base_path }}/static/js/entries.js"></script>
+    <script src="{{ base_path }}/static/js/notes.js"></script>
+    <script src="{{ base_path }}/static/js/config.js"></script>
+    <script src="{{ base_path }}/static/js/app.js"></script>
+{% endblock %}

@@ -1,0 +1,10 @@
+/* pinboard - app-level state helpers on top of the druids framework */
+
+/* elements only visible while edit mode is on (toggled on body by app.js) */
+.edit-only {
+    display: none;
+}
+
+body.edit-mode .edit-only {
+    display: inline-flex;
+}

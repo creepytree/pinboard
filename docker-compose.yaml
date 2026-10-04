@@ -1,0 +1,20 @@
+services:
+  pinboard:
+    container_name: pinboard
+    image: bitdruid/pinboard:latest
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      - BASE_PATH=        # Public base path, e.g. /subdir1/app
+      - LOG_LEVEL=DEBUG   # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      # Optional static single-user login. Sessions are kept in memory only.
+      - LOGIN=true        # Set false to disable login
+      - LOGIN_USER=admin  # Username
+      - LOGIN_PW=admin    # Password
+      - LOGIN_TIMEOUT=60  # Session idle timeout in minutes
+    volumes:
+      - ./instance:/app/pinboard/instance  # sqlite db + log file
+    restart: unless-stopped
